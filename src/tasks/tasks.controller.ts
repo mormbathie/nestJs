@@ -7,7 +7,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
-  @Post()
+  @Post() 
   create(@Body() createTaskDto: CreateTaskDto) {
     return this.tasksService.create(createTaskDto);
   }
@@ -22,13 +22,13 @@ export class TasksController {
     return this.tasksService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(+id, updateTaskDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+  //   return this.tasksService.update(+id, updateTaskDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.tasksService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.tasksService.remove(+id);
+  // }
 }
