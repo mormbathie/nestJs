@@ -16,6 +16,9 @@ export class UserService {
          };
          this.users.push(newUser);
          return newUser;
+   }
 
+findAllUsers(): User[]{
+    return this.users;
    }
 }
