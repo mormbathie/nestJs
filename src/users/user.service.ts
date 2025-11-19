@@ -44,4 +44,13 @@ findAllUsers(): User[]{
     }
     return user;
    }
+
+   removeUser(id: number){
+    const index = this.users.findIndex(user => user.id === id);
+    if(index === -1){
+        throw new Error(`User with id ${id} not found`);
+    }
+    this.users.splice(index, 1);
+    return {message: `User with id ${id} has been removed`};
+   }
 }
