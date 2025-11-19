@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { User } from "./entites/user.entityt";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable()
 export class UserService {
@@ -20,5 +21,27 @@ export class UserService {
 
 findAllUsers(): User[]{
     return this.users;
+   }
+   
+   findOneUser(id: number): User {  
+        const user =  this.users.find(user => user.id === id);      
+        if(!user){
+            throw new Error(`User with id ${id} not found`);
+        }      
+        return user
+   }
+
+   updateUser(id: number, UpdateUserDto: UpdateUserDto){
+    const user = this.findOneUser(id);
+    if(UpdateUserDto.name !== undefined){
+        user.name = UpdateUserDto.name;
+    }
+    if(UpdateUserDto.email !== undefined){
+        user.email = UpdateUserDto.email;
+    }
+    if(UpdateUserDto.isActive !== undefined){
+        user.isActive = UpdateUserDto.isActive;
+    }
+    return user;
    }
 }
