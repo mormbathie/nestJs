@@ -1,33 +1,48 @@
-import { Body, Controller, Post,Get, Param, ParseIntPipe, Patch, Delete } from "@nestjs/common";
-import { UserService } from "./user.service";
-import { CreateUserDto } from "./dto/create-user.dto";
+// src/users/users.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
+import { UsersService } from './user.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
-export class UserController {
-    constructor(private readonly usersService : UserService) { }
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
 
-    @Post()
-    create(@Body()createUserDto: CreateUserDto){
-        return this.usersService.createUser(createUserDto)
-    }
+  @Post()
+  async create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
 
-    @Get()
-    findAll(){
-        return this.usersService.findAllUsers()
-    }
+  @Get()
+  async findAll() {
+    return this.usersService.findAll();
+  }
 
-    @Get(':id')
-    findOne(@Param('id', ParseIntPipe) id: number){
-        return this.usersService.findOneUser(id)
-    }
-    @Patch(':id')
-    update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto){
-        return this.usersService.updateUser(id, updateUserDto)
-    }
-    @Delete(':id')
-    remove(@Param('id', ParseIntPipe) id: number){
-        return this.usersService.removeUser(id)
-    }
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOne(id);
+  }
 
-   
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.usersService.remove(id);
+    return { message: `User ${id} deleted successfully` };
+  }
 }
