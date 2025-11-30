@@ -2,21 +2,32 @@ import {Injectable} from '@nestjs/common';
 import {PrismaService} from 'src/prisma/prisma.service';
 import {CreateTaskDto} from './dto/create-task.dto';
 import {UpdateTaskDto} from './dto/update-task.dto';
-import { log } from 'console';
+import logger from 'src/logger';
+import { taskCreateCounter,requestDurationHistogram } from 'src/common/metrics';
 
 @Injectable()
 export class TaskService{
   constructor(private readonly prisma : PrismaService) {}
-  async create(CreateTaskDto: CreateTaskDto) {
-    return this.prisma.task.create({
-      data:{
-        email : CreateTaskDto.email,
-        name: CreateTaskDto.name,
+  async create(createTaskDto: CreateTaskDto) {
+    const start = Date.now();
+    logger.info({ action: 'createTask', email: createTaskDto.email }, 'Creating task');
 
-      }
+    const task = await this.prisma.task.create({
+      data: {
+        email: createTaskDto.email,
+        name: createTaskDto.name,
+      },
+    });
 
-    })
+    taskCreateCounter.add(1, { service: 'tasks', route: '/tasks' });
+    requestDurationHistogram.record(Date.now() - start, { route: '/tasks' });
+
+    logger.info({ taskId: task.id, duration: Date.now() - start }, 'Task created');
+
+    return task;
   }
+
+  
   async findAll() {
     return this.prisma.task.findMany();
   }
