@@ -1,39 +1,62 @@
-import { Injectable } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
-import { Task } from './entities/task.entity';
+import {Injectable} from '@nestjs/common';
+import {PrismaService} from 'src/prisma/prisma.service';
+import {CreateTaskDto} from './dto/create-task.dto';
+import {UpdateTaskDto} from './dto/update-task.dto';
+import { log } from 'console';
 
 @Injectable()
-export class TasksService {
-  private tasks: Task[] = [];
-  private nextId = 1;
-  create(createTaskDto: CreateTaskDto): Task {
-    const newTask: Task = {
-      id: (this.nextId++).toString(),
-      title: createTaskDto.title,
-      description: createTaskDto.description,
-      done: false,
-    };
-    this.tasks.push(newTask);
-    return newTask;
-  }
-  findAll(): Task[] {
-    return this.tasks;
-  }
+export class TaskService{
+  constructor(private readonly prisma : PrismaService) {}
+  async create(CreateTaskDto: CreateTaskDto) {
+    return this.prisma.task.create({
+      data:{
+        email : CreateTaskDto.email,
+        name: CreateTaskDto.name,
 
-  findOne(id: number): Task {
-      const task =  this.tasks.find(task => task.id === id.toString());
-      if(!task){
-          throw new Error(`Task with id ${id} not found`);
       }
-      return task
+
+    })
+  }
+  async findAll() {
+    return this.prisma.task.findMany();
   }
 
-  // update(id: number, updateTaskDto: UpdateTaskDto) {
-  //   return `This action updates a #${id} task`;
-  // }
+  async findOne(id: number){
+    console.log("id dans service:", id);
+   const task =  await this.prisma.task.findUnique(
+      {where: {id}});
+      if(!task){
+        throw new Error (`Task with id ${id} not found`);
+      }
+      return task;
+  
+  }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} task`;
-  // }
+  async update(id: number, updateTaskDto: UpdateTaskDto){
+
+    await this.findOne(id);
+
+    return this.prisma.task.update({
+      where: {id},
+      data: {
+        email : updateTaskDto.email,
+        name: updateTaskDto.name,
+      },
+    });
+  }
+
+  async remove(id: number){
+    const task = await this.prisma.task.findUnique({where: {id}});
+    if(!task){
+      throw new Error (`Task with id ${id} not found`);
+    }
+
+    await this.findOne(id);
+
+    await this.prisma.task.delete({
+      where: {id},
+    });
+
+    return (`${task.name}  est bien supprimé`);
+  }
 }
